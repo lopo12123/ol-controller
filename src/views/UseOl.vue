@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import 'ol/ol.css';
-import { onBeforeUnmount, onMounted, ref } from "vue";
-import { create_map } from "../lib/core";
+import { onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
+import { OlController } from "../../lib";
 
-const OlContainer = ref<HTMLDivElement | null>(null)
+const container = ref<HTMLDivElement | null>(null)
+const controller = shallowRef<OlController | null>(null)
 
 const renderMap = () => {
-    if(!!OlContainer.value) {
-        create_map(OlContainer.value, '', {
+    if(!!container.value) {
+        controller.value = new OlController(container.value, '', {
             center: [ 120.209881, 29.235268 ]
         })
+
+        controller.value.addPolygonLayer('test-polygon', 'https://geo.datav.aliyun.com/areas_v3/bound/geojson?code=330000_full')
+        controller.value.addPointLayer('test-point', [ { anchor: [ 120, 30 ] } ], 'http://localhost:22222/src/assets/home/serve.png')
     }
 }
 
@@ -36,7 +39,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="use-ol">
-        <div id="ol-container" ref="OlContainer"/>
+        <div id="ol-container" ref="container"/>
     </div>
 </template>
 

@@ -255,6 +255,12 @@ const create_point_layer = <Ext_PointData = any>(
 }
 // endregion
 
+// region popup
+const create_popup = () => {
+
+}
+// endregion
+
 export type {
     OPTION_tile_map,
     OPTION_polygon,
