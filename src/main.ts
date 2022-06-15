@@ -1,3 +1,4 @@
+import "./fonts/iconfont.css";
 import "./index.scss";
 
 import { createApp } from "vue";

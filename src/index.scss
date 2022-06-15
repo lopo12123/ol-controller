@@ -30,5 +30,48 @@
 html, body, #app {
     position: relative;
     width: 100%;
-    height: 100%
+    height: 100%;
+    color: #333;
+}
+
+html {
+    font-size: 16px;
+}
+
+input {
+    width: calc(100% - 1.25rem);
+    height: 1.8125rem;
+    padding: 0 0.625rem;
+    border: none;
+    border-bottom: solid 1px #777a;
+    outline: none;
+    line-height: 1.875rem;
+    color: #777;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    &::placeholder {
+        font-style: italic;
+    }
+}
+
+.btn {
+    height: 1.75rem;
+    padding: 0 0.625rem;
+    border: solid 1px #7779;
+    border-radius: 0.3125rem;
+    outline: none;
+    color: #777;
+    font-size: 0.875rem;
+    user-select: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover{
+        background-color: #7773;
+    }
+    &:active {
+        background-color: #7776;
+    }
 }

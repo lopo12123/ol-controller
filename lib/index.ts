@@ -136,13 +136,29 @@ class OlController {
     }
 
     /**
-     * @description clean up all layers and the map instance
+     * @description animate to target center
+     * @param center target center
+     * @param duration animation duration
      */
-    dispose() {
+    public animateTo(center: [ number, number ], duration: number = 1500) {
+        this.#map?.getView().animate({ center, duration })
+    }
+
+    /**
+     * @description clear all layers but base map
+     */
+    clear() {
         this.#layers.forEach(layer => {
             layer.dispose()
         })
         this.#layers.clear()
+    }
+
+    /**
+     * @description clean up all layers and the map instance
+     */
+    dispose() {
+        this.clear()
 
         this.#map?.dispose()
         this.#map = null
