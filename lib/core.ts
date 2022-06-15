@@ -7,8 +7,17 @@ import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { GeoJSON } from "ol/format";
 import { Fill, Icon, Stroke, Style } from "ol/style";
-import { Point } from "ol/geom";
+import { Point, Polygon } from "ol/geom";
 import { useGeographic } from "ol/proj";
+
+/**
+ * @description default style config
+ */
+const enum UseDefault {
+    stroke = '#777',
+    strokeWidth = 2,
+    fill = 'transparent',
+}
 
 // call once to enable longitude/latitude
 useGeographic()
@@ -17,7 +26,7 @@ useGeographic()
 /**
  * @description optional option of view
  */
-type MapViewOption = {
+type OPTION_tile_map = {
     /**
      * @description default center
      */
@@ -45,7 +54,10 @@ type MapViewOption = {
  * @param src src of map tail
  * @param options custom options for ol::view
  */
-const create_map = (el: HTMLElement | string, src?: string, options?: MapViewOption) => {
+const create_tile_map__xyz = (
+    el: HTMLElement | string,
+    src?: string,
+    options?: OPTION_tile_map) => {
     const map_option: MapOptions = {
         target: el,
         layers: [
@@ -72,11 +84,28 @@ const create_map = (el: HTMLElement | string, src?: string, options?: MapViewOpt
 }
 // endregion
 
-// region create boundary
+// region polygon layer
 /**
- * @description optional options for boundary generator
+ * @description polygon data in create-polygon-layer (by path array)
  */
-type BoundaryStyleOptions = {
+type OPTION_polygon<T = any> = {
+    /**
+     * @description path of polygon (series of points of the polygon)
+     */
+    path: [ number, number ][],
+    /**
+     * @description optional private style (it will block the shared style config)
+     */
+    style?: STYLE_polygon
+    /**
+     * @description custom data
+     */
+    ext?: T
+}
+/**
+ * @description optional options for polygon`s style
+ */
+type STYLE_polygon = {
     /**
      * @description stroke color
      */
@@ -100,41 +129,92 @@ type BoundaryStyleOptions = {
 }
 /**
  * @description create a polygon by data from GeoJson
- * @param path_of_json data of polygon
- * @param styles optional style
+ * @param geojson path/url of polygon
+ * @param style optional style
  */
-const create_boundary__from_json = (path_of_json: string, styles?: Partial<BoundaryStyleOptions>) => {
-    if(styles?.strokeType === 'dashed' && !styles?.dashArray) {
-        console.warn('[OlController] "StrokeType" will not function as "dashArray" is in invalid format.')
+const create_polygon_layer__GeoJson = (
+    geojson: string,
+    style?: Partial<STYLE_polygon>) => {
+    if(style?.strokeType === 'dashed' && !style?.dashArray) {
+        console.warn('[OlController] The "style.StrokeType" will not function as "style.dashArray" is in invalid format.')
     }
 
     return new VectorLayer({
         source: new VectorSource({
-            url: path_of_json,
+            url: geojson,
             format: new GeoJSON()
         }),
         style: new Style({
             stroke: new Stroke({
-                color: styles?.stroke ?? '#777',
-                width: styles?.strokeWidth ?? 2,
-                lineDash: styles?.strokeType === 'solid' ? [ 0, 0 ] : (styles?.dashArray ?? [ 0, 0 ])
+                color: style?.stroke ?? UseDefault.stroke,
+                width: style?.strokeWidth ?? UseDefault.strokeWidth,
+                lineDash: style?.strokeType === 'dashed' ? (style?.dashArray ?? [ 0, 0 ]) : [ 0, 0 ]
             }),
             fill: new Fill({
-                color: styles?.fill ?? 'transparent'
+                color: style?.fill ?? UseDefault.fill
             })
         })
     })
 }
+
+/**
+ * @description create a polygon by data from path array
+ * @param polygons collection of polygons
+ * @param style optional style
+ */
+const create_polygon_layer__PathArray = <Ext_AreaData = any>(
+    polygons: OPTION_polygon<Ext_AreaData>[],
+    style?: Partial<STYLE_polygon>) => {
+    if(style?.strokeType === 'dashed' && !style?.dashArray) {
+        console.warn('[OlController] The "style.StrokeType" will not function as "style.dashArray" is in invalid format.')
+    }
+
+    const source = new VectorSource()
+    const layer = new VectorLayer({ source })
+
+    polygons.forEach(polygon => {
+        const polygon_feature = new Feature({
+            type: 'polygon',
+            geometry: new Polygon([ polygon.path ]),
+            self: polygon,
+        })
+
+        let dash = [ 0, 0 ]
+        if(polygon.style?.strokeType === 'dashed' && !!polygon.style.dashArray) {
+            dash = polygon.style.dashArray
+        }
+        else if(!polygon.style?.strokeType && style?.strokeType === 'dashed' && !!style.dashArray) {
+            dash = style.dashArray
+        }
+
+        polygon_feature.setStyle(new Style({
+            stroke: new Stroke({
+                color: polygon.style?.stroke ?? style?.stroke ?? UseDefault.stroke,
+                width: polygon.style?.strokeWidth ?? style?.strokeWidth ?? UseDefault.strokeWidth,
+                lineDash: dash
+            }),
+            fill: new Fill({
+                color: polygon.style?.fill ?? style?.fill ?? UseDefault.fill
+            })
+        }))
+        source.addFeature(polygon_feature)
+    })
+
+    return layer
+}
 // endregion
 
-// region create markers
-type MarkerItemOption<T = any> = {
+// region point layer
+/**
+ * @description point data in create-point-layer
+ */
+type OPTION_point<T = any> = {
     /**
      * @description anchor of icon
      */
     anchor: [ number, number ]
     /**
-     * @description private icon (it will block the shared icon config)
+     * @description optional private icon (it will block the shared icon config)
      */
     icon?: string
     /**
@@ -144,31 +224,31 @@ type MarkerItemOption<T = any> = {
 }
 /**
  * @description create a layer which contains series of points
- * @param path_of_icon path of icon (shared by all markers)
- * @param markers
+ * @param points a collection of point-data
+ * @param icon path to the icon of point (shared by all points)
  */
-const create_marker_layer = <Ext = any>(
-    path_of_icon: string,
-    markers: MarkerItemOption<Ext>[]) => {
+const create_point_layer = <Ext_PointData = any>(
+    points: OPTION_point<Ext_PointData>[],
+    icon: string) => {
     const source = new VectorSource()
     const layer = new VectorLayer({ source })
 
-    markers.forEach((marker) => {
-        const marker_feature = new Feature({
-            type: 'marker',
-            geometry: new Point(marker.anchor),
-            self: marker
+    points.forEach(point => {
+        const point_feature = new Feature({
+            type: 'point',
+            geometry: new Point(point.anchor),
+            self: point
         })
-        marker_feature.setStyle(new Style({
+        point_feature.setStyle(new Style({
             image: new Icon({
                 anchor: [ 0.5, 0.5 ],
                 scale: 0.5,
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
-                src: marker.icon ?? path_of_icon,
+                src: point.icon ?? icon,
             })
         }))
-        source.addFeature(marker_feature)
+        source.addFeature(point_feature)
     })
 
     return layer
@@ -176,12 +256,15 @@ const create_marker_layer = <Ext = any>(
 // endregion
 
 export type {
-    MapViewOption,
-    BoundaryStyleOptions,
-    MarkerItemOption
+    OPTION_tile_map,
+    OPTION_polygon,
+    STYLE_polygon,
+    OPTION_point
 }
 
 export {
-    create_map,
-    create_boundary__from_json
+    create_tile_map__xyz,
+    create_point_layer,
+    create_polygon_layer__GeoJson,
+    create_polygon_layer__PathArray
 }
