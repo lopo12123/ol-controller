@@ -28,6 +28,13 @@ class OlController {
     #map: OlMap | null = null
 
     /**
+     * @description whether the map has been rendered(true) of disposed(false)
+     */
+    get instantiated() {
+        return this.#map !== null
+    }
+
+    /**
      * @description references of addition layers
      * @private
      */
@@ -96,6 +103,7 @@ class OlController {
                 const layer_json = create_polygon_layer__GeoJson(polygons, style)
                 this.#layers.set(layerName, layer_json)
                 this.#map.addLayer(layer_json)
+                console.log(layer_json)
             }
             else {
                 const layer_path = create_polygon_layer__PathArray(polygons, style)
