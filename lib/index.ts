@@ -45,7 +45,7 @@ class OlController {
      * @param src url of map tile
      * @param initOptions default view config
      */
-    constructor(el: HTMLElement, src?: string, initOptions?: OPTION_tile_map) {
+    constructor(el: HTMLElement, src?: string, initOptions?: Partial<OPTION_tile_map>) {
         this.#dom = el
         this.#map = create_tile_map__xyz(el, src, initOptions)
     }
@@ -55,7 +55,7 @@ class OlController {
      * @param src url of map tile
      * @param initOptions default view config
      */
-    render(src?: string, initOptions?: OPTION_tile_map) {
+    render(src?: string, initOptions?: Partial<OPTION_tile_map>) {
         if(this.#map !== null) {
             console.warn('[OlController] There is a map instance on the target dom, calling the method "render" will overwrite the old map instance. If that`s what you`re doing, ignore this warning.')
             this.dispose()

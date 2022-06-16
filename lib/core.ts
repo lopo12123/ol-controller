@@ -57,7 +57,7 @@ type OPTION_tile_map = {
 const create_tile_map__xyz = (
     el: HTMLElement | string,
     src?: string,
-    options?: OPTION_tile_map) => {
+    options?: Partial<OPTION_tile_map>) => {
     const map_option: MapOptions = {
         target: el,
         layers: [
