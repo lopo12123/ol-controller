@@ -149,7 +149,7 @@ const addPolygon_file = () => {
  * @description 清空地图
  */
 const clearMap = () => {
-    controller.value?.clear()
+    controller.value?.cleanUp()
     pointCount.value = 0
     polygonCount.value = 0
 }
