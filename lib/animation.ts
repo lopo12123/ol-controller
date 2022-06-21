@@ -6,6 +6,9 @@ import { Icon, Stroke, Style } from "ol/style";
 import RenderEvent from "ol/render/Event";
 import { getVectorContext } from "ol/render";
 
+/**
+ * @description 不要直接使用此类进行实例化, 使用 `OlController.addAnimation` 方法添加动画控制类
+ */
 class AnimationController {
     /**
      * @description 所属的地图实例
@@ -64,6 +67,15 @@ class AnimationController {
      */
     #last_raf_time = -1
 
+    /**
+     * @description 构造动画播放控制类, 一个控制类绑定一个动画图层以控制播放/停止行为
+     * @param map 动画图层所属地图实例
+     * @param path 动画轨迹
+     * @param icons 运动点、起点(可选)、终点(可选) 图标
+     * @param duration (可选) 动画持续时间 (单位: ms, 默认值: 100_000)
+     * @param style (可选) 动画轨迹样式
+     * @param percentUpdateCB (可选) 回调函数, 运动图标行进百分比变化时触发, 参数为当前已播放的百分比(0-1)
+     */
     constructor(
         map: OlMap,
         path: [ number, number ][],
@@ -72,7 +84,7 @@ class AnimationController {
             start?: string,
             end?: string
         },
-        duration: number = 1,
+        duration: number = 100_000,
         style?: {
             width?: number,
             stroke?: string
