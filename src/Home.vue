@@ -165,6 +165,11 @@ onMounted(() => {
     )
 
     controller.value?.getAnimation('test')?.play()
+
+    setTimeout(() => {
+        controller.value?.getAnimation('test')?.setDuration(30_000)
+    }, 6000)
+
 })
 onBeforeUnmount(() => {
     controller.value?.dispose()
