@@ -1,5 +1,11 @@
 import { Map as OlMap } from "ol";
-import type { OPTION_point, OPTION_polygon, OPTION_tile_map, STYLE_point_cluster, STYLE_polygon } from "./core";
+import type {
+    OPTION_point, OPTION_point_cluster,
+    OPTION_polygon,
+    OPTION_tile_map,
+    STYLE_point_cluster,
+    STYLE_polygon
+} from "./core";
 import {
     create_point_cluster_layer,
     create_point_layer,
@@ -149,7 +155,7 @@ class OlController {
      */
     public addPointClusterLayer(
         layerName: string,
-        points: OPTION_point[],
+        points: OPTION_point_cluster[],
         icon: string,
         distance: number,
         minDistance: number,
