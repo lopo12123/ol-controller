@@ -111,14 +111,11 @@ const clearMap = () => {
 onMounted(() => {
     reloadDefault()
 
-    controller.value?.addPointClusterLayer('test', [
-            { anchor: [ 116.3, 40.9 ] },
-            { anchor: [ 116.8, 40.9 ] },
-            { anchor: [ 117.3, 40.9 ] },
-        ], './star.png', 10, 5,
-        {
-            text: (num) => `${ num }个`
-        })
+    controller.value?.addPolylineLayer('test', [
+        { path: [ [ 120, 30 ], [ 119, 30 ], [ 119, 29 ], [ 120, 29 ] ] }
+    ], {
+        startMarker: './star.png'
+    })
 })
 onBeforeUnmount(() => {
     controller.value?.dispose()
