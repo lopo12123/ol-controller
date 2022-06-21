@@ -5,7 +5,7 @@ import { Cluster, OSM, XYZ } from "ol/source";
 import { MapOptions } from "ol/PluggableMap";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { GeoJSON, Polyline } from "ol/format";
+import { GeoJSON } from "ol/format";
 import { Fill, Icon, Stroke, Style, Text } from "ol/style";
 import { LineString, Point, Polygon } from "ol/geom";
 import { useGeographic } from "ol/proj";
