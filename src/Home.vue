@@ -111,11 +111,14 @@ const clearMap = () => {
 onMounted(() => {
     reloadDefault()
 
-    controller.value?.addPolylineLayer('test', [
-        { path: [ [ 120, 30 ], [ 119, 30 ], [ 119, 29 ], [ 120, 29 ] ] }
-    ], {
-        startMarker: './star.png'
-    })
+    controller.value?.addAnimation('test',
+        [ [ 120, 30 ], [ 119, 30 ], [ 119, 29 ], [ 120, 29 ] ],
+        {
+            player: './star.png'
+        }
+    )
+
+    controller.value?.getAnimation('test')?.play()
 })
 onBeforeUnmount(() => {
     controller.value?.dispose()
