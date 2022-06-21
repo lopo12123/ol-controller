@@ -2,7 +2,6 @@
 import { onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 import { OlController } from "../lib";
 
-
 // region panel control
 const PanelDefault = {
     url: '',
@@ -58,7 +57,7 @@ const moveTo = () => {
         return
     }
 
-    controller.value?.animateTo([ panel_center_longitude.value, panel_center_latitude.value ])
+    controller.value?.animateTo([ parseFloat(panel_center_longitude.value), parseFloat(panel_center_latitude.value) ])
 }
 
 /**
@@ -73,7 +72,7 @@ const addPoint = () => {
     controller.value?.addPointLayer(
         'points' + pointCount.value,
         [ {
-            anchor: [ panel_point_longitude.value, panel_point_latitude.value ]
+            anchor: [ parseFloat(panel_point_longitude.value), parseFloat(panel_point_latitude.value) ]
         } ],
         './wujiaoxing.png'
     )
@@ -110,7 +109,16 @@ const clearMap = () => {
 }
 
 onMounted(() => {
-    // reloadDefault()
+    reloadDefault()
+
+    controller.value?.addPointClusterLayer('test', [
+            { anchor: [ 116.3, 40.9 ] },
+            { anchor: [ 116.8, 40.9 ] },
+            { anchor: [ 117.3, 40.9 ] },
+        ], './star.png', 10, 5,
+        {
+            text: (num) => `${ num }个`
+        })
 })
 onBeforeUnmount(() => {
     controller.value?.dispose()

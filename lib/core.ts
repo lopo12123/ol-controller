@@ -1,14 +1,15 @@
 import "ol/ol.css";
 import { Feature, Map as OlMap, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import { OSM, XYZ } from "ol/source";
+import { Cluster, OSM, XYZ } from "ol/source";
 import { MapOptions } from "ol/PluggableMap";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { GeoJSON } from "ol/format";
-import { Fill, Icon, Stroke, Style } from "ol/style";
+import { Fill, Icon, Stroke, Style, Text } from "ol/style";
 import { Point, Polygon } from "ol/geom";
 import { useGeographic } from "ol/proj";
+import CircleStyle from "ol/style/Circle";
 
 /**
  * @description default style config
@@ -57,7 +58,7 @@ type OPTION_tile_map = {
 const create_tile_map__xyz = (
     el: HTMLElement | string,
     src?: string,
-    options?: OPTION_tile_map) => {
+    options?: Partial<OPTION_tile_map>) => {
     const map_option: MapOptions = {
         target: el,
         layers: [
@@ -73,7 +74,7 @@ const create_tile_map__xyz = (
         view: new View({
             center: options?.center ?? [ 0, 0 ],
             projection: options?.projection ?? "EPSG:4326",
-            zoom: 7,
+            zoom: options?.zoom ?? 7,
             minZoom: Math.max(2, options?.minZoom ?? 0),
             maxZoom: Math.min(20, options?.maxZoom ?? 20),
         }),
@@ -242,7 +243,7 @@ const create_point_layer = <Ext_PointData = any>(
         point_feature.setStyle(new Style({
             image: new Icon({
                 anchor: [ 0.5, 0.5 ],
-                scale: 0.5,
+                scale: 1,
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
                 src: point.icon ?? icon,
@@ -252,6 +253,123 @@ const create_point_layer = <Ext_PointData = any>(
     })
 
     return layer
+}
+
+/**
+ * @description point data in create-point-layer
+ */
+type OPTION_point_cluster<T = any> = {
+    /**
+     * @description anchor of icon
+     */
+    anchor: [ number, number ]
+    /**
+     * @description custom data
+     */
+    ext?: T
+}
+type STYLE_point_cluster = {
+    /**
+     * @description if hide icon when num of icon > 1
+     */
+    hideIcon: boolean
+    /**
+     * @description text of text-function
+     */
+    text: string | ((num: number) => string)
+    /**
+     * @description color of text
+     */
+    textColor: string
+    /**
+     * @description used when shape is `circle`
+     */
+    radius: number
+    /**
+     * @description background color
+     */
+    backgroundColor: string
+    /**
+     * @description background stroke
+     */
+    borderColor: string
+}
+/**
+ * @description generator custom style using optional config
+ * @param num number of cluster item
+ * @param originIcon original icon
+ * @param style style config
+ */
+const clusterStyleGenerator = (num: number, originIcon: Icon, style?: Partial<STYLE_point_cluster>) => {
+    const textToShow = typeof style?.text === 'function' ? style.text(num) : (style?.text ?? num.toString())
+
+    return new Style({
+        image: style?.hideIcon === false
+            ? originIcon
+            : new CircleStyle({
+                radius: style?.radius ?? 10,
+                stroke: new Stroke({
+                    color: style?.borderColor ?? '#fff'
+                }),
+                fill: new Fill({
+                    color: style?.backgroundColor ?? '#39c'
+                })
+            }),
+        text: new Text({
+            text: textToShow,
+            fill: new Fill({
+                color: style?.textColor ?? '#fff'
+            }),
+        })
+    })
+}
+/**
+ * @description create a layer which contains series of points in cluster
+ * @param points a collection of point-data
+ * @param icon path to the icon of point (shared by all points)
+ * @param distance distance of points in cluster
+ * @param minDistance min-distance of points in cluster
+ * @param clusterStyle style of cluster icon
+ */
+const create_point_cluster_layer = <Ext_PointData = any>(
+    points: OPTION_point<Ext_PointData>[],
+    icon: string,
+    distance: number,
+    minDistance: number,
+    clusterStyle?: Partial<STYLE_point_cluster>) => {
+    const features = points.map(point => {
+        return new Feature({
+            type: 'point_cluster',
+            geometry: new Point(point.anchor),
+            self: point
+        })
+    })
+    const source = new VectorSource({ features })
+    const cluster_source = new Cluster({ distance, minDistance, source })
+
+    const styleCache: { [k: number]: Style } = {}
+
+    return new VectorLayer({
+            source: cluster_source,
+            style: (feature_group) => {
+                const size = feature_group.get('features').length
+                let style = styleCache[size]
+
+                if(!style) {
+                    style = clusterStyleGenerator(size, new Icon({
+                        anchor: [ 0.5, 0.5 ],
+                        scale: 1,
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'fraction',
+                        src: icon,
+                    }), clusterStyle)
+                    styleCache[size] = style
+                }
+
+                return style
+            }
+        }
+    )
 }
 // endregion
 
@@ -265,12 +383,15 @@ export type {
     OPTION_tile_map,
     OPTION_polygon,
     STYLE_polygon,
-    OPTION_point
+    OPTION_point,
+    OPTION_point_cluster,
+    STYLE_point_cluster,
 }
 
 export {
     create_tile_map__xyz,
     create_point_layer,
+    create_point_cluster_layer,
     create_polygon_layer__GeoJson,
     create_polygon_layer__PathArray
 }
