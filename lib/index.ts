@@ -1,4 +1,5 @@
 import { Map as OlMap } from "ol";
+import type VectorLayer from "ol/layer/Vector";
 import type {
     OPTION_tile_map,
     OPTION_polygon, OPTION_polyline,
@@ -14,12 +15,11 @@ import {
     create_polyline_layer,
     create_tile_map__xyz
 } from "./core";
-import VectorLayer from "ol/layer/Vector";
+import { AnimationController } from "./animation";
 
 class OlController {
     /**
      * @description container element of map
-     * @private
      */
     readonly #dom: HTMLElement
     /**
@@ -31,13 +31,11 @@ class OlController {
 
     /**
      * @description instance of the map
-     * @private
      */
     #map: OlMap | null = null
 
     /**
      * @description references of addition layers
-     * @private
      */
     #layers = new Map<string, VectorLayer<any>>()
     /**
@@ -47,6 +45,18 @@ class OlController {
         return [ ...this.#layers.keys() ]
     }
 
+    /**
+     * @description reference of animation controllers
+     */
+    #animationLayers = new Map<string, AnimationController>()
+    /**
+     * @description names of animation controllers
+     */
+    get animationLayers() {
+        return [ ...this.#animationLayers.keys() ]
+    }
+
+    // region 渲染/重绘
     /**
      * @description render a new map on the target dom
      * @param el container of map
@@ -76,6 +86,9 @@ class OlController {
         this.#map = create_tile_map__xyz(this.#dom, src, initOptions)
     }
 
+    // endregion
+
+    // region 图层控制(添加/移除)
     /**
      * @description add point layer
      * @param layerName layer`s name
@@ -201,14 +214,91 @@ class OlController {
     }
 
     /**
-     * @description remove certain layer
-     * @param layerName name of layer
+     * @description 移除附加图层
+     * @param layerName (可选) 若为空则移除全部附加图层, 否则移除指定图层
      */
-    public removeLayer(layerName: string) {
-        this.#layers.get(layerName)?.dispose()
-        this.#layers.delete(layerName)
+    public removeLayer(layerName?: string) {
+        if(layerName === undefined) {
+            this.#layers.forEach((vecLayer) => {
+                vecLayer.dispose()
+            })
+            this.#layers.clear()
+        }
+        else {
+            this.#layers.get(layerName)?.dispose()
+            this.#layers.delete(layerName)
+        }
     }
 
+    // endregion
+
+    // region 动画控制(添加/获取/移除)
+    /**
+     * @description 在地图实例上附加一个动画 `controller`, 动画图层生命周期由此 `controller` 控制
+     * @param layerName layer`s name
+     * @param path 动画轨迹
+     * @param icons 运动点、起点(可选)、终点(可选) 图标
+     * @param duration (可选) 动画持续时间 (单位: ms, 默认值: 100_000)
+     * @param style (可选) 动画轨迹样式
+     * @param percentUpdateCB (可选) 回调函数, 运动图标行进百分比变化时触发, 参数为当前已播放的百分比(0-1)
+     */
+    addAnimation(
+        layerName: string,
+        path: [ number, number ][],
+        icons: {
+            player: string,
+            start?: string,
+            end?: string
+        },
+        duration: number = 100_000,
+        style?: {
+            width?: number,
+            stroke?: string
+        },
+        percentUpdateCB?: (percent: number) => void) {
+        if(!this.#map) {
+            console.warn('[OlController] The map instance has already disposed.')
+        }
+        else {
+            if(this.#animationLayers.has(layerName)) {
+                console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
+            }
+
+            const animation_controller = new AnimationController(this.#map, path, icons, duration, style, percentUpdateCB)
+            this.#animationLayers.set(layerName, animation_controller)
+            // 由 controller 控制动画图层附加到地图实例上
+            // 此处只需保存 controller 的引用
+        }
+    }
+
+    /**
+     * @description 根据图层名获取 `controller`, 若为空则返回 `null`
+     * @param layerName 动画图层名
+     */
+    getAnimation(layerName: string) {
+        return this.#animationLayers.get(layerName) ?? null
+    }
+
+    /**
+     * @description 移除动画图层
+     * @param layerName (可选) 若为空则移除全部动画图层, 否则移除指定图层
+     */
+    removeAnimation(layerName?: string) {
+        if(layerName === undefined) {
+            this.#animationLayers.forEach((controller) => {
+                controller.dispose()
+            })
+            this.#animationLayers.clear()
+        }
+        else {
+            this.#animationLayers.get(layerName)?.dispose()
+            this.#animationLayers.delete(layerName)
+        }
+    }
+
+    // endregion
+
+    // region viewport (to center)
     /**
      * @description animate to target center
      * @param center target center
@@ -220,25 +310,28 @@ class OlController {
         this.#map?.getView().animate({ center, duration })
     }
 
+    // endregion
+
+    // region clean up / dispose
     /**
-     * @description clear all layers but base map
+     * @description 移除除底图外的全部内容
      */
-    clear() {
-        this.#layers.forEach(layer => {
-            layer.dispose()
-        })
-        this.#layers.clear()
+    cleanUp() {
+        this.removeLayer()
+        this.removeAnimation()
     }
 
     /**
-     * @description clean up all layers and the map instance
+     * @description 移除全部图层并销毁地图实例
      */
     dispose() {
-        this.clear()
+        this.cleanUp()
 
         this.#map?.dispose()
         this.#map = null
     }
+
+    // endregion
 }
 
 export {
