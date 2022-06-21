@@ -52,53 +52,97 @@ const renderMap = () => {
 }
 
 const moveTo = () => {
-    if(!panel_center_longitude.value || !panel_center_latitude.value) {
-        alert('无效点位值')
-        return
+    if(!controller.value?.instantiated) {
+        alert('请先渲染地图')
     }
-
-    controller.value?.animateTo([ parseFloat(panel_center_longitude.value), parseFloat(panel_center_latitude.value) ])
+    else if(!panel_center_longitude.value || !panel_center_latitude.value) {
+        alert('无效点位值')
+    }
+    else {
+        controller.value?.animateTo([ parseFloat(panel_center_longitude.value), parseFloat(panel_center_latitude.value) ])
+    }
 }
+
 
 /**
  * @description 添加点
  */
 const addPoint = () => {
-    if(!panel_point_longitude.value || !panel_point_latitude.value) {
-        alert('无效点位值')
-        return
+    if(!controller.value?.instantiated) {
+        alert('请先渲染地图')
     }
-
-    controller.value?.addPointLayer(
-        'points' + pointCount.value,
-        [ {
-            anchor: [ parseFloat(panel_point_longitude.value), parseFloat(panel_point_latitude.value) ]
-        } ],
-        './wujiaoxing.png'
-    )
-    pointCount.value += 1
+    else if(!panel_point_longitude.value || !panel_point_latitude.value) {
+        alert('无效点位值')
+    }
+    else {
+        controller.value?.addPointLayer(
+            'points' + pointCount.value,
+            [ {
+                anchor: [ parseFloat(panel_point_longitude.value), parseFloat(panel_point_latitude.value) ]
+            } ],
+            './wujiaoxing.png'
+        )
+        pointCount.value += 1
+    }
 }
 
 /**
  * @description 添加 url 路径
  */
 const addPolygon_url = () => {
-    if(!panel_polygon_url.value) {
-        alert('无效url')
-        return
+    if(!controller.value?.instantiated) {
+        alert('请先渲染地图')
     }
-    console.log(panel_polygon_url.value)
-    controller.value?.addPolygonLayer(
-        'polygon' + polygonCount.value,
-        panel_polygon_url.value
-    )
-    polygonCount.value += 1
+    else if(!panel_polygon_url.value) {
+        alert('无效url')
+    }
+    else {
+        controller.value?.addPolygonLayer(
+            'polygon' + polygonCount.value,
+            panel_polygon_url.value
+        )
+        polygonCount.value += 1
+    }
 }
 /**
  * @description 添加 geoJson 路径
  */
 const addPolygon_file = () => {
-    alert('暂不支持')
+    if(!controller.value?.instantiated) {
+        alert('请先渲染地图')
+    }
+    else {
+        const ipt = document.createElement('input')
+        ipt.type = 'file'
+        ipt.click()
+        ipt.onchange = () => {
+            const file = ipt.files?.[0]
+            if(!file) {
+                alert('无可用文件')
+            }
+            else {
+                const filename = file.name.toLowerCase()
+                if(!filename.endsWith('.json') && !filename.endsWith('.geojson')) {
+                    alert('错误格式')
+                }
+                else {
+                    const reader = new FileReader()
+                    reader.onload = () => {
+                        controller.value?.addPolygonLayer(
+                            'polygon' + polygonCount.value,
+                            reader.result as string
+                        )
+                        polygonCount.value += 1
+                    }
+                    reader.onerror = (e) => {
+                        console.log(e)
+                        alert('读取文件出错, 查看控制台以获得更多信息.')
+                    }
+                    reader.readAsDataURL(ipt.files![0])
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -106,6 +150,8 @@ const addPolygon_file = () => {
  */
 const clearMap = () => {
     controller.value?.clear()
+    pointCount.value = 0
+    polygonCount.value = 0
 }
 
 onMounted(() => {
@@ -129,18 +175,24 @@ onBeforeUnmount(() => {
     <div class="home">
         <div class="panel-view">
             <div class="title-banner">
-                <div class="btn" @click="reloadDefault">
+                <div class="btn" title="使用内置默认参数绘制地图" @click="reloadDefault">
                     <i class="iconfont icon-reset_basic"/>
                     <span>载入默认</span>
                 </div>
-                <div class="btn" @click="renderMap">
+                <div class="btn" title="使用当前面板参数绘制地图" @click="renderMap">
                     <i class="iconfont icon-ditu"/>
                     <span>参数绘制</span>
                 </div>
             </div>
 
             <div class="block">
-                <div class="label">Url of map tile</div>
+                <div class="label">
+                    <span>Url of map tile</span>
+                    <div class="btn" title="清除底图外的全部附加层" @click="clearMap">
+                        <i class="iconfont icon-15qingkong-1"/>
+                        <span>清除</span>
+                    </div>
+                </div>
                 <input class="val" type="text" v-model="panel_url"
                        placeholder="use default OSM if empty.">
             </div>
@@ -148,7 +200,7 @@ onBeforeUnmount(() => {
             <div class="block">
                 <div class="label">
                     <span>Center</span>
-                    <div class="btn" @click="moveTo">
+                    <div class="btn" title="将点位移动到视图中央" @click="moveTo">
                         <i class="iconfont icon-jujiao"/>
                         <span>聚焦</span>
                     </div>
@@ -166,7 +218,7 @@ onBeforeUnmount(() => {
             <div class="block">
                 <div class="label">
                     <span>Point</span>
-                    <div class="btn" @click="addPoint">
+                    <div class="btn" title="在地图上目标点位添加图标" @click="addPoint">
                         <i class="iconfont icon-dianping"/>
                         <span>添加点位</span>
                     </div>
@@ -185,7 +237,7 @@ onBeforeUnmount(() => {
                 <div class="label">
                     <span>Polygon</span>
 
-                    <div class="btn" @click="addPolygon_url">
+                    <div class="btn" title="使用url定位getJson绘制区域" @click="addPolygon_url">
                         <i class="iconfont icon-huizhi-01"/>
                         <span>添加区域</span>
                     </div>
@@ -194,10 +246,24 @@ onBeforeUnmount(() => {
                     <span class="label">url:</span>
                     <input class="val" type="text" v-model="panel_polygon_url"
                            placeholder="Url of GeoJson file.">
-                    <div class="btn" @click="addPolygon_file">
+                    <div class="btn" title="选择本地文件绘制区域(支持: .json, .geojson)" @click="addPolygon_file">
                         <i class="iconfont icon-json"/>
                         <span>选择文件</span>
                     </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="label">
+                    <span>Overview</span>
+                </div>
+                <div class="line">
+                    <span class="key">Polygon</span>
+                    <span class="val">{{ polygonCount }}</span>
+                </div>
+                <div class="line">
+                    <span class="key">Point</span>
+                    <span class="val">{{ pointCount }}</span>
                 </div>
             </div>
         </div>
@@ -274,6 +340,22 @@ onBeforeUnmount(() => {
             grid-template-rows: 1fr;
             grid-template-columns: auto 1fr auto;
             column-gap: 0.3125rem;
+        }
+
+        .line {
+            height: 2rem;
+            color: #777;
+            font-size: 1rem;
+            line-height: 2rem;
+
+            .key {
+                width: 5rem;
+                display: inline-block;
+            }
+
+            .val {
+                font-size: 1rem;
+            }
         }
     }
 

@@ -35,6 +35,13 @@ class OlController {
     #map: OlMap | null = null
 
     /**
+     * @description whether the map has been rendered(true) of disposed(false)
+     */
+    get instantiated() {
+        return this.#map !== null
+    }
+
+    /**
      * @description references of addition layers
      */
     #layers = new Map<string, VectorLayer<any>>()
