@@ -21,7 +21,7 @@ class OlController {
     /**
      * @description container element of map
      */
-    readonly #dom: HTMLElement
+    #dom: HTMLElement | null
     /**
      * @description container element of map
      */
@@ -63,7 +63,7 @@ class OlController {
         return [ ...this.#animationLayers.keys() ]
     }
 
-    // region 渲染/重绘
+    // region render/re-render
     /**
      * @description render a new map on the target dom
      * @param el container of map
@@ -80,22 +80,25 @@ class OlController {
 
     /**
      * @description render a new map on the target dom
+     * @param el container of map
      * @param src url of map tile
      * @param initOptions default view config
      */
     render(
+        el: HTMLElement,
         src?: string,
         initOptions?: Partial<OPTION_tile_map>) {
         if(this.#map !== null) {
             console.warn('[OlController] There is a map instance on the target dom, calling the method "render" will overwrite the old map instance. If that`s what you`re doing, ignore this warning.')
             this.dispose()
         }
-        this.#map = create_tile_map__xyz(this.#dom, src, initOptions)
+        this.#dom = el
+        this.#map = create_tile_map__xyz(el, src, initOptions)
     }
 
     // endregion
 
-    // region 图层控制(添加/移除)
+    // region layer-control(add/remove)
     /**
      * @description add point layer
      * @param layerName layer`s name
@@ -239,7 +242,7 @@ class OlController {
 
     // endregion
 
-    // region 动画控制(添加/获取/移除)
+    // region animation-control(add/get/remove)
     /**
      * @description 在地图实例上附加一个动画 `controller`, 动画图层生命周期由此 `controller` 控制
      * @param layerName layer`s name
@@ -336,6 +339,7 @@ class OlController {
 
         this.#map?.dispose()
         this.#map = null
+        this.#dom = null
     }
 
     // endregion
