@@ -13,7 +13,7 @@ class AnimationController {
     /**
      * @description 所属的地图实例
      */
-    readonly #map: OlMap
+    #map: OlMap | null
 
     /**
      * @description 动画层
@@ -217,7 +217,7 @@ class AnimationController {
             vectorCtx.drawGeometry(this.#player_geo)
 
             // 渲染到地图, 触发地图渲染事件以自动 raf
-            this.#map.render()
+            this.#map?.render()
         }
     }).bind(this)
 
@@ -278,7 +278,8 @@ class AnimationController {
      */
     dispose() {
         this.pause()
-        this.#map.removeLayer(this.#layer)
+        this.#map?.removeLayer(this.#layer)
+        this.#map = null
     }
 }
 
