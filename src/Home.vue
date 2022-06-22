@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 import { OlController } from "../lib";
 
 // region panel control
 const PanelDefault = {
     url: '',
-    panel_center_longitude: '116.3',
-    panel_center_latitude: '39.9',
+    panel_center_longitude: '120',
+    panel_center_latitude: '30',
     panel_point_longitude: '',
     panel_point_latitude: '',
     panel_polygon_url: '',
@@ -46,7 +46,7 @@ const renderMap = () => {
     if(!!container.value) {
         controller.value?.dispose()
         controller.value = new OlController(container.value, panel_url.value, {
-            center: [ parseFloat(panel_center_longitude.value ?? '116.3'), parseFloat(panel_center_latitude.value ?? '39.9') ]
+            center: [ parseFloat(panel_center_longitude.value ?? '120'), parseFloat(panel_center_latitude.value ?? '30') ]
         })
     }
 }
@@ -62,7 +62,6 @@ const moveTo = () => {
         controller.value?.animateTo([ parseFloat(panel_center_longitude.value), parseFloat(panel_center_latitude.value) ])
     }
 }
-
 
 /**
  * @description 添加点
@@ -157,19 +156,16 @@ const clearMap = () => {
 onMounted(() => {
     reloadDefault()
 
-    controller.value?.addAnimation('test',
-        [ [ 120, 30 ], [ 119, 30 ], [ 119, 29 ], [ 120, 29 ] ],
-        {
-            player: './star.png'
-        }
+    controller.value?.addPopup(
+        'test',
+        document.getElementById('popup'),
     )
 
-    controller.value?.getAnimation('test')?.play()
+    controller.value?.getPopup('test')?.show([ 120, 30 ])
 
     setTimeout(() => {
-        controller.value?.getAnimation('test')?.setDuration(30_000)
-    }, 6000)
-
+        controller.value?.getPopup('test')?.toCenter(1000)
+    }, 2000)
 })
 onBeforeUnmount(() => {
     controller.value?.dispose()
@@ -273,6 +269,9 @@ onBeforeUnmount(() => {
             </div>
         </div>
         <div class="map-view">
+            <div id="popup">
+                popup overlay
+            </div>
             <div id="ol-container" ref="container"/>
         </div>
     </div>
@@ -368,6 +367,11 @@ onBeforeUnmount(() => {
         position: relative;
         width: calc(100% - 18.75rem);
         height: 100%;
+
+        #popup {
+            position: absolute;
+            z-index: 10;
+        }
 
         #ol-container {
             position: relative;
