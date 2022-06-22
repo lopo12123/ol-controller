@@ -16,8 +16,10 @@ import {
     create_tile_map__xyz
 } from "./core";
 import { AnimationController } from "./animation";
+import { PopupAnchor, PopupController } from "./popup";
 
 class OlController {
+    // region render/re-render
     /**
      * @description container element of map
      */
@@ -41,29 +43,6 @@ class OlController {
         return this.#map !== null
     }
 
-    /**
-     * @description references of addition layers
-     */
-    #layers = new Map<string, VectorLayer<any>>()
-    /**
-     * @description names of addition layers
-     */
-    get layers() {
-        return [ ...this.#layers.keys() ]
-    }
-
-    /**
-     * @description reference of animation controllers
-     */
-    #animationLayers = new Map<string, AnimationController>()
-    /**
-     * @description names of animation controllers
-     */
-    get animationLayers() {
-        return [ ...this.#animationLayers.keys() ]
-    }
-
-    // region render/re-render
     /**
      * @description render a new map on the target dom
      * @param el container of map
@@ -99,6 +78,17 @@ class OlController {
     // endregion
 
     // region layer-control(add/remove)
+    /**
+     * @description references of addition layers
+     */
+    #layers = new Map<string, VectorLayer<any>>()
+    /**
+     * @description names of addition layers
+     */
+    get layers() {
+        return [ ...this.#layers.keys() ]
+    }
+
     /**
      * @description add point layer
      * @param layerName layer`s name
@@ -244,7 +234,18 @@ class OlController {
 
     // region animation-control(add/get/remove)
     /**
-     * @description 在地图实例上附加一个动画 `controller`, 动画图层生命周期由此 `controller` 控制
+     * @description reference of animation controllers
+     */
+    #animationLayers = new Map<string, AnimationController>()
+    /**
+     * @description names of animation controllers
+     */
+    get animationLayers() {
+        return [ ...this.#animationLayers.keys() ]
+    }
+
+    /**
+     * @description 在地图实例上附加一个动画 `controller`, 动画图层的生命周期由此 `controller` 控制
      * @param layerName layer`s name
      * @param path 动画轨迹
      * @param icons 运动点、起点(可选)、终点(可选) 图标
@@ -276,7 +277,7 @@ class OlController {
 
             const animation_controller = new AnimationController(this.#map, path, icons, duration, style, percentUpdateCB)
             this.#animationLayers.set(layerName, animation_controller)
-            // 由 controller 控制动画图层附加到地图实例上
+            // 由 controller 将动画图层附加到地图实例上
             // 此处只需保存 controller 的引用
         }
     }
@@ -303,6 +304,73 @@ class OlController {
         else {
             this.#animationLayers.get(layerName)?.dispose()
             this.#animationLayers.delete(layerName)
+        }
+    }
+
+    // endregion
+
+    // region popup-control(add/get/remove)
+    /**
+     * @description reference of popup-overlay controllers
+     */
+    #popupOverlays = new Map<string, PopupController>()
+    /**
+     * @description names of popup-overlay controllers
+     */
+    get popupOverlays() {
+        return [ ...this.#popupOverlays.keys() ]
+    }
+
+    /**
+     * @description 将 dom 元素绑定为地图叠置层控元素, 叠置层的生命周期由此 `controller` 控制
+     * @param layerName layer`s name
+     * @param el 绑定的 dom 元素
+     * @param anchor (可选)定位锚点(默认值: `bottom-left`)
+     * @param offset (可选)定位锚点偏移(格式: [x, y], 单位: px, 默认值: [0, 0])
+     */
+    addPopup(
+        layerName: string,
+        el: HTMLElement,
+        anchor?: PopupAnchor,
+        offset?: [ number, number ]
+    ) {
+        if(!this.#map) {
+            console.warn('[OlController] The map instance has already disposed.')
+        }
+        else {
+            if(this.#popupOverlays.has(layerName)) {
+                console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
+            }
+
+            const popup_controller = new PopupController(el, this.#map, anchor, offset)
+            this.#popupOverlays.set(layerName, popup_controller)
+            // 由 controller 将叠置层附加到地图实例上
+            // 此处只需保存 controller 的引用
+        }
+    }
+
+    /**
+     * @description 根据图层名获取 `controller`, 若为空则返回 `null`
+     * @param layerName 叠置层名
+     */
+    getPopup(layerName: string) {
+        return this.#popupOverlays.get(layerName) ?? null
+    }
+
+    /**
+     * @description 移除叠置层
+     * @param layerName (可选) 若为空则移除全部叠置层, 否则移除指定图层
+     */
+    removePopup(layerName?: string) {
+        if(layerName === undefined) {
+            this.#popupOverlays.forEach((controller) => {
+                controller.dispose()
+            })
+            this.#popupOverlays.clear()
+        }
+        else {
+            this.#popupOverlays.get(layerName)?.dispose()
+            this.#popupOverlays.delete(layerName)
         }
     }
 
