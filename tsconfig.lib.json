@@ -16,21 +16,10 @@
         ],
         "skipLibCheck": true,
         "declaration": true,
-        "outDir": "dist"
+        "outDir": "./"
     },
     "include": [
-        "lib/*.ts",
-        "src/**/*.ts",
-        "src/**/*.d.ts",
-        "src/**/*.tsx",
-        "src/**/*.vue",
+        "lib/*.ts"
     ],
-    "exclude": [
-        "dist"
-    ],
-    "references": [
-        {
-            "path": "./tsconfig.node.json"
-        }
-    ]
+    "exclude": []
 }
