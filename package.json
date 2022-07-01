@@ -3,9 +3,8 @@
     "private": true,
     "version": "0.0.0",
     "scripts": {
-        "dev": "vite --host --open",
-        "build": "vue-tsc --noEmit && vite build",
-        "preview": "vite preview"
+        "dev:docs": "vite --host --open",
+        "build:docs": "vue-tsc --noEmit && vite build"
     },
     "types": "dist/index.d.ts",
     "exports": {
@@ -31,6 +30,7 @@
         "vue-tsc": "^0.34.7"
     },
     "files": [
-        "lib"
+        "lib",
+        "dist"
     ]
 }
