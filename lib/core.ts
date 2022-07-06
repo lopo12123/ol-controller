@@ -501,12 +501,6 @@ const create_polyline_layer = (polylines: OPTION_polyline[], style?: Partial<STY
 }
 // endregion
 
-// region todo popup
-const create_popup = () => {
-
-}
-// endregion
-
 export type {
     OPTION_tile_map,
 
