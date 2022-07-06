@@ -1,6 +1,6 @@
 {
     "name": "ol-controller",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "scripts": {
         "dev:docs": "vite --host --open",
         "build:docs": "vue-tsc --noEmit && vite build",
