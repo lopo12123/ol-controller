@@ -1,16 +1,15 @@
 {
     "name": "ol-controller",
-    "private": true,
     "version": "0.0.0",
     "scripts": {
         "dev:docs": "vite --host --open",
-        "build:docs": "vue-tsc --noEmit && vite build"
+        "build:docs": "vue-tsc --noEmit && vite build",
+        "build": "rollup --config rollup.config.js"
     },
-    "types": "dist/index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/index.min.esm",
-            "require": "./dist/index.min.cjs"
+            "import": "./dist/esm/index.js",
+            "require": "./dist/cjs/index.js"
         }
     },
     "dependencies": {
