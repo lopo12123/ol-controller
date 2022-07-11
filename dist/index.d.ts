@@ -1,4 +1,5 @@
 import { Map as OlMap } from "ol";
+import type VectorLayer from "ol/layer/Vector";
 import type { OPTION_tile_map, OPTION_polygon, OPTION_polyline, OPTION_point, OPTION_point_cluster, STYLE_point_cluster, STYLE_polygon, STYLE_polyline } from "./core";
 import { AnimationController } from "./animation";
 import { PopupAnchor, PopupController } from "./popup";
@@ -43,9 +44,29 @@ declare class OlController {
      */
     getZoomLevel(): number | null;
     /**
+     * @description 在目标图层的源数据中进行条件查询
+     * @param layerName 图层名
+     * @param condition 查询条件
+     */
+    searchInLayer<ItemData = any>(layerName: string, condition: (self: {
+        [k: string]: any;
+        extData?: ItemData;
+    }) => boolean): NonNullable<ItemData> | null;
+    /**
+     * @description switch hide/show of specific layer
+     * @param layerName 图层名
+     * @param to 指定显示或隐藏, 为空则切换
+     */
+    toggle_visible(layerName: string, to?: boolean): void;
+    /**
      * @description names of addition layers
      */
     get layers(): string[];
+    /**
+     * @description 获取目标图层, 若有 api 最好不要调用此函数, 否则直接获取图层进行操作
+     * @param layerName
+     */
+    getLayer(layerName: string): VectorLayer<any> | undefined;
     /**
      * @description add point layer
      * @param layerName layer`s name
@@ -88,12 +109,6 @@ declare class OlController {
      * @param clickCB 点击回调
      */
     addPolylineLayer<PolylineData>(layerName: string, polylines: OPTION_polyline<PolylineData>[], style?: Partial<STYLE_polyline>, clickCB?: (pos: [number, number], ext?: PolylineData) => void): void;
-    /**
-     * @description switch hide/show of specific layer
-     * @param layerName 图层名
-     * @param to 指定显示或隐藏, 为空则切换
-     */
-    toggle_visible(layerName: string, to?: boolean): void;
     /**
      * @description 移除附加图层
      * @param layerName (可选) 若为空则移除全部附加图层, 否则移除指定图层
