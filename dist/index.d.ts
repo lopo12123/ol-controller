@@ -1,3 +1,4 @@
+import { Map as OlMap } from "ol";
 import type { OPTION_tile_map, OPTION_polygon, OPTION_polyline, OPTION_point, OPTION_point_cluster, STYLE_point_cluster, STYLE_polygon, STYLE_polyline } from "./core";
 import { AnimationController } from "./animation";
 import { PopupAnchor, PopupController } from "./popup";
@@ -7,6 +8,10 @@ declare class OlController {
      * @description container element of map
      */
     get dom(): HTMLElement | null;
+    /**
+     * @description 获得地图实例, 若有相应 api 最好不要直接操作, 否则可以获取此实例进行操作
+     */
+    get map(): OlMap | null;
     /**
      * @description whether the map has been rendered(true) of disposed(false)
      */
@@ -23,6 +28,15 @@ declare class OlController {
      * @param initOptions default view config
      */
     render(el: HTMLElement, initOptions?: OPTION_tile_map): void;
+    /**
+     * @description zoom-in / zoom-out / zoom to specific level
+     * @param to
+     */
+    zoom(to: '-' | '+' | number): void;
+    /**
+     * @description get current zoom level
+     */
+    getZoomLevel(): number | null;
     /**
      * @description names of addition layers
      */
