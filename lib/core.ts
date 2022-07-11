@@ -128,6 +128,7 @@ const create_tile_map__xyz = (
                 minZoom: Math.max(2, options?.minZoom ?? 0),
                 maxZoom: Math.min(20, options?.maxZoom ?? 20),
             }),
+            controls: [],
         }
 
         return new OlMap(map_option)
