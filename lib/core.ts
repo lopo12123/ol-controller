@@ -1,7 +1,7 @@
 import "ol/ol.css";
 import { Feature, Map as OlMap, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import { Cluster, OSM, XYZ } from "ol/source";
+import { Cluster, OSM, Raster, XYZ } from "ol/source";
 import { MapOptions } from "ol/PluggableMap";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
@@ -10,6 +10,7 @@ import { Fill, Icon, Stroke, Style, Text } from "ol/style";
 import { LineString, Point, Polygon } from "ol/geom";
 import { useGeographic } from "ol/proj";
 import CircleStyle from "ol/style/Circle";
+import ImageLayer from "ol/layer/Image";
 
 /**
  * @description default style config
@@ -32,25 +33,51 @@ useGeographic()
  */
 type OPTION_tile_map = {
     /**
+     * @description base layer(s)
+     */
+    base?: {
+        /**
+         * @description source of map
+         */
+        src: string
+        /**
+         * @description if cross-origin
+         */
+        crossOrigin: string
+        /**
+         * @description An array of numbers representing an extent: [minx, miny, maxx, maxy].
+         */
+        extent?: number[]
+    }[]
+    /**
+     * @description use raster
+     */
+    raster?: {
+        operationType: 'pixel' | 'image',
+        operation: (data: number[][] | ImageData[]) => number[] | ImageData
+    }
+    // region view
+    /**
      * @description default center
      */
-    center: [ number, number ]
+    center?: [ number, number ]
     /**
      * @description projection (default to EPSG:4326)
      */
-    projection: string
+    projection?: string
     /**
      * @description default zoom level
      */
-    zoom: number
+    zoom?: number
     /**
      * @description min zoom level (>=2)
      */
-    minZoom: number
+    minZoom?: number
     /**
      * @description max zoom level (<=20)
      */
-    maxZoom: number
+    maxZoom?: number
+    // endregion
 }
 /**
  * @description crate a ol::map instance
@@ -60,31 +87,66 @@ type OPTION_tile_map = {
  */
 const create_tile_map__xyz = (
     el: HTMLElement | string,
-    src?: string,
-    options?: Partial<OPTION_tile_map>) => {
-    const map_option: MapOptions = {
-        target: el,
-        layers: [
+    options?: OPTION_tile_map) => {
+    let base_layers: TileLayer<any>[];
+
+    if(!!options?.base && options.base.length > 0) {
+        base_layers = options.base.map(single => new TileLayer({
+            source: new XYZ({
+                crossOrigin: single.crossOrigin,
+                url: single.src,
+            }),
+            extent: single.extent
+        }))
+    }
+    else {
+        base_layers = [
             new TileLayer({
-                source: !src ?
-                    new OSM() :
-                    new XYZ({
-                        // crossOrigin: new URL(src).origin,
-                        url: src
-                    })
+                source: new OSM()
             })
-        ],
-        view: new View({
-            center: options?.center ?? [ 0, 0 ],
-            projection: options?.projection ?? "EPSG:4326",
-            zoom: options?.zoom ?? 7,
-            minZoom: Math.max(2, options?.minZoom ?? 0),
-            maxZoom: Math.min(20, options?.maxZoom ?? 20),
-        }),
-        controls: [],
+        ]
     }
 
-    return new OlMap(map_option)
+    if(!!options?.raster) {
+        const raster = new Raster({
+            sources: base_layers,
+            operationType: options.raster.operationType,
+            operation: options.raster.operation,
+        })
+        const map_option: MapOptions = {
+            target: el,
+            layers: [
+                new ImageLayer({
+                    source: raster
+                })
+            ],
+            view: new View({
+                center: options?.center ?? [ 0, 0 ],
+                projection: options?.projection ?? "EPSG:4326",
+                zoom: options?.zoom ?? 7,
+                minZoom: Math.max(2, options?.minZoom ?? 0),
+                maxZoom: Math.min(20, options?.maxZoom ?? 20),
+            }),
+        }
+
+        return new OlMap(map_option)
+    }
+    else {
+        const map_option: MapOptions = {
+            target: el,
+            layers: base_layers,
+            view: new View({
+                center: options?.center ?? [ 0, 0 ],
+                projection: options?.projection ?? "EPSG:4326",
+                zoom: options?.zoom ?? 7,
+                minZoom: Math.max(2, options?.minZoom ?? 0),
+                maxZoom: Math.min(20, options?.maxZoom ?? 20),
+            }),
+            controls: [],
+        }
+
+        return new OlMap(map_option)
+    }
 }
 // endregion
 
