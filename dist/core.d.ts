@@ -51,11 +51,12 @@ declare type OPTION_tile_map = {
      * @description max zoom level (<=20)
      */
     maxZoom?: number;
+    constrainResolution: boolean;
+    smoothResolutionConstraint: boolean;
 };
 /**
  * @description crate a ol::map instance
  * @param el dom container, or a valid css selector of target dom
- * @param src src of map tail
  * @param options custom options for ol::view
  */
 declare const create_tile_map__xyz: (el: HTMLElement | string, options?: OPTION_tile_map) => OlMap;
