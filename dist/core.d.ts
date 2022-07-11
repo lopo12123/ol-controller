@@ -81,8 +81,9 @@ declare type OPTION_point<T = any> = {
  * @description create a layer which contains series of points
  * @param points a collection of point-data
  * @param icon path to the icon of point (shared by all points)
+ * @param cb 点击回调
  */
-declare const create_point_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
+declare const create_point_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, cb?: ((pos: [number, number], ext?: Ext_PointData | undefined) => void) | undefined) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
 /**
  * @description point data in create-point-layer
  */
@@ -132,8 +133,9 @@ declare type STYLE_point_cluster = {
  * @param distance distance of points in cluster
  * @param minDistance min-distance of points in cluster
  * @param clusterStyle style of cluster icon
+ * @param cb 点击回调
  */
-declare const create_point_cluster_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>) => VectorLayer<Cluster>;
+declare const create_point_cluster_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>, cb?: ((pos: [number, number], ext?: Ext_PointData | undefined) => void) | undefined) => VectorLayer<Cluster>;
 /**
  * @description polygon data in create-polygon-layer (by path array)
  */
@@ -186,8 +188,9 @@ declare const create_polygon_layer__GeoJson: (geojson: string, style?: Partial<S
  * @description create a polygon by data from path array
  * @param polygons collection of polygons
  * @param style optional style
+ * @param cb 点击回调
  */
-declare const create_polygon_layer__PathArray: <Ext_AreaData = any>(polygons: OPTION_polygon<Ext_AreaData>[], style?: Partial<STYLE_polygon>) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
+declare const create_polygon_layer__PathArray: <Ext_AreaData = any>(polygons: OPTION_polygon<Ext_AreaData>[], style?: Partial<STYLE_polygon>, cb?: ((pos: [number, number], ext?: Ext_AreaData | undefined) => void) | undefined) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
 /**
  * @description polyline data in create-polyline-layer
  */
@@ -238,7 +241,8 @@ declare type STYLE_polyline = {
  * @description create a layer which contains series of polyline
  * @param polylines a collection of polyline-data
  * @param style optional style
+ * @param cb 点击回调
  */
-declare const create_polyline_layer: (polylines: OPTION_polyline[], style?: Partial<STYLE_polyline>) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
+declare const create_polyline_layer: <PolylineData>(polylines: OPTION_polyline<PolylineData>[], style?: Partial<STYLE_polyline>, cb?: ((pos: [number, number], ext?: PolylineData | undefined) => void) | undefined) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
 export type { OPTION_tile_map, OPTION_point, OPTION_point_cluster, STYLE_point_cluster, OPTION_polygon, STYLE_polygon, OPTION_polyline, STYLE_polyline, };
 export { create_tile_map__xyz, create_point_layer, create_point_cluster_layer, create_polygon_layer__GeoJson, create_polygon_layer__PathArray, create_polyline_layer, };

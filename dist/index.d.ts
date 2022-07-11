@@ -17,6 +17,11 @@ declare class OlController {
      */
     get instantiated(): boolean;
     /**
+     * @description 添加点击(选中)事件监听器
+     * @private
+     */
+    private enable_select_listener;
+    /**
      * @description render a new map on the target dom
      * @param el container of map
      * @param initOptions default view config
@@ -46,8 +51,9 @@ declare class OlController {
      * @param layerName layer`s name
      * @param points details of every point
      * @param icon path/url of icon to show
+     * @param clickCB 点击回调
      */
-    addPointLayer(layerName: string, points: OPTION_point[], icon: string): void;
+    addPointLayer<PointData>(layerName: string, points: OPTION_point<PointData>[], icon: string, clickCB?: (pos: [number, number], ext?: PointData) => void): void;
     /**
      * @description add point layer in cluster
      * @param layerName layer`s name
@@ -56,8 +62,9 @@ declare class OlController {
      * @param distance distance of points in cluster
      * @param minDistance min-distance of points in cluster
      * @param clusterStyle style of icon in cluster
+     * @param clickCB 点击回调
      */
-    addPointClusterLayer(layerName: string, points: OPTION_point_cluster[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>): void;
+    addPointClusterLayer<ClusterPointData>(layerName: string, points: OPTION_point_cluster<ClusterPointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>, clickCB?: (pos: [number, number], ext?: ClusterPointData) => void): void;
     /**
      * @description add polygon layer by data in geoJson
      * @param layerName layer`s name
@@ -70,15 +77,17 @@ declare class OlController {
      * @param layerName layer`s name
      * @param polygons collections of path of polygon
      * @param style optional style for polygon
+     * @param clickCB 点击回调
      */
-    addPolygonLayer(layerName: string, polygons: OPTION_polygon[], style?: STYLE_polygon): void;
+    addPolygonLayer<PolygonData>(layerName: string, polygons: OPTION_polygon<PolygonData>[], style?: STYLE_polygon, clickCB?: (pos: [number, number], ext?: PolygonData) => void): void;
     /**
      * @description add polyline layer
      * @param layerName layer`s name
      * @param polylines details of every polyline
      * @param style optional style for polyline
+     * @param clickCB 点击回调
      */
-    addPolylineLayer(layerName: string, polylines: OPTION_polyline[], style?: Partial<STYLE_polyline>): void;
+    addPolylineLayer<PolylineData>(layerName: string, polylines: OPTION_polyline<PolylineData>[], style?: Partial<STYLE_polyline>, clickCB?: (pos: [number, number], ext?: PolylineData) => void): void;
     /**
      * @description switch hide/show of specific layer
      * @param layerName 图层名
