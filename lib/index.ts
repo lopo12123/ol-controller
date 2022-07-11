@@ -17,6 +17,8 @@ import {
 } from "./core";
 import { AnimationController } from "./animation";
 import { PopupAnchor, PopupController } from "./popup";
+import { Select } from "ol/interaction";
+import { getCenter } from "ol/extent";
 
 class OlController {
     // region render/re-render
@@ -50,6 +52,25 @@ class OlController {
     }
 
     /**
+     * @description 添加点击(选中)事件监听器
+     * @private
+     */
+    private enable_select_listener() {
+        const singleClick = new Select()
+        singleClick.on('select', (ev) => {
+            const item = ev.target?.getFeatures()?.getArray()?.[0]
+            if(!!item) {
+                const coordinate = getCenter(item.getGeometry().getExtent())
+                // 当元素被点击时自动触发其回调(如果存在)
+                item.getProperties()._click_callback?.(coordinate)
+            }
+            // 取消默认的选中效果
+            ev.target?.getFeatures()?.clear()
+        })
+        this.#map?.addInteraction(singleClick)
+    }
+
+    /**
      * @description render a new map on the target dom
      * @param el container of map
      * @param initOptions default view config
@@ -59,6 +80,7 @@ class OlController {
         initOptions?: OPTION_tile_map) {
         this.#dom = el
         this.#map = create_tile_map__xyz(el, initOptions)
+        this.enable_select_listener()
     }
 
     /**
@@ -75,6 +97,7 @@ class OlController {
         }
         this.#dom = el
         this.#map = create_tile_map__xyz(el, initOptions)
+        this.enable_select_listener()
     }
 
     // endregion
@@ -126,11 +149,13 @@ class OlController {
      * @param layerName layer`s name
      * @param points details of every point
      * @param icon path/url of icon to show
+     * @param clickCB 点击回调
      */
-    public addPointLayer(
+    public addPointLayer<PointData>(
         layerName: string,
-        points: OPTION_point[],
-        icon: string) {
+        points: OPTION_point<PointData>[],
+        icon: string,
+        clickCB?: (pos: [ number, number ], ext?: PointData) => void) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
         }
@@ -139,7 +164,7 @@ class OlController {
                 console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
             }
 
-            const layer_point = create_point_layer(points, icon)
+            const layer_point = create_point_layer(points, icon, clickCB)
             this.#layers.set(layerName, layer_point)
             this.#map.addLayer(layer_point)
         }
