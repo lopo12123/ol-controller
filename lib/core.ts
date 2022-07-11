@@ -77,12 +77,13 @@ type OPTION_tile_map = {
      * @description max zoom level (<=20)
      */
     maxZoom?: number
+    constrainResolution: boolean
+    smoothResolutionConstraint: boolean
     // endregion
 }
 /**
  * @description crate a ol::map instance
  * @param el dom container, or a valid css selector of target dom
- * @param src src of map tail
  * @param options custom options for ol::view
  */
 const create_tile_map__xyz = (
@@ -141,6 +142,10 @@ const create_tile_map__xyz = (
                 zoom: options?.zoom ?? 7,
                 minZoom: Math.max(2, options?.minZoom ?? 0),
                 maxZoom: Math.min(20, options?.maxZoom ?? 20),
+                // 整数倍
+                constrainResolution: options?.constrainResolution ?? true,
+                // 无级缩放
+                smoothResolutionConstraint: options?.smoothResolutionConstraint ?? false
             }),
             controls: [],
         }
