@@ -289,18 +289,23 @@ const clusterStyleGenerator = (num: number, originIcon: Icon, style?: Partial<ST
  * @param distance distance of points in cluster
  * @param minDistance min-distance of points in cluster
  * @param clusterStyle style of cluster icon
+ * @param cb 点击回调
  */
 const create_point_cluster_layer = <Ext_PointData = any>(
     points: OPTION_point<Ext_PointData>[],
     icon: string,
     distance: number,
     minDistance: number,
-    clusterStyle?: Partial<STYLE_point_cluster>) => {
+    clusterStyle?: Partial<STYLE_point_cluster>,
+    cb?: (pos: [ number, number ], ext?: Ext_PointData) => void) => {
     const features = points.map(point => {
         return new Feature({
             type: 'point_cluster',
             geometry: new Point(point.anchor),
-            self: point
+            self: point,
+            _click_callback: (pos: [ number, number ]) => {
+                cb?.(pos, point.ext)
+            }
         })
     })
     const source = new VectorSource({ features })

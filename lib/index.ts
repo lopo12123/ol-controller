@@ -178,14 +178,16 @@ class OlController {
      * @param distance distance of points in cluster
      * @param minDistance min-distance of points in cluster
      * @param clusterStyle style of icon in cluster
+     * @param clickCB 点击回调
      */
-    public addPointClusterLayer(
+    public addPointClusterLayer<ClusterPointData>(
         layerName: string,
-        points: OPTION_point_cluster[],
+        points: OPTION_point_cluster<ClusterPointData>[],
         icon: string,
         distance: number,
         minDistance: number,
-        clusterStyle?: Partial<STYLE_point_cluster>) {
+        clusterStyle?: Partial<STYLE_point_cluster>,
+        clickCB?: (pos: [ number, number ], ext?: ClusterPointData) => void) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
         }
@@ -194,7 +196,7 @@ class OlController {
                 console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
             }
 
-            const layer_point_cluster = create_point_cluster_layer(points, icon, distance, minDistance, clusterStyle)
+            const layer_point_cluster = create_point_cluster_layer(points, icon, distance, minDistance, clusterStyle, clickCB)
             this.#layers.set(layerName, layer_point_cluster)
             this.#map.addLayer(layer_point_cluster)
         }
