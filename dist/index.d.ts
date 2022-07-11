@@ -50,7 +50,7 @@ declare class OlController {
      */
     searchInLayer<ItemData = any>(layerName: string, condition: (self: {
         [k: string]: any;
-        extData?: ItemData;
+        ext?: ItemData;
     }) => boolean): NonNullable<ItemData> | null;
     /**
      * @description switch hide/show of specific layer
