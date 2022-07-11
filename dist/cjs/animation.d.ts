@@ -43,6 +43,11 @@ declare class AnimationController {
      */
     reset(reset_speed?: boolean): void;
     /**
+     * @description switch show/hide of animation layer
+     * @param to 指定显示或隐藏, 为空则切换
+     */
+    toggle_visible(to?: boolean): void;
+    /**
      * @description 清除动画图层的全部内容, 释放 controller 所持的强引用
      */
     dispose(): void;

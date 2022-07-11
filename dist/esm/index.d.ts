@@ -68,6 +68,12 @@ declare class OlController {
      */
     addPolylineLayer(layerName: string, polylines: OPTION_polyline[], style?: Partial<STYLE_polyline>): void;
     /**
+     * @description switch hide/show of specific layer
+     * @param layerName 图层名
+     * @param to 指定显示或隐藏, 为空则切换
+     */
+    toggle_visible(layerName: string, to?: boolean): void;
+    /**
      * @description 移除附加图层
      * @param layerName (可选) 若为空则移除全部附加图层, 否则移除指定图层
      */
