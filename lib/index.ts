@@ -255,11 +255,13 @@ class OlController {
      * @param layerName layer`s name
      * @param polylines details of every polyline
      * @param style optional style for polyline
+     * @param clickCB 点击回调
      */
-    public addPolylineLayer(
+    public addPolylineLayer<PolylineData>(
         layerName: string,
-        polylines: OPTION_polyline[],
-        style?: Partial<STYLE_polyline>
+        polylines: OPTION_polyline<PolylineData>[],
+        style?: Partial<STYLE_polyline>,
+        clickCB?: (pos: [ number, number ], ext?: PolylineData) => void
     ) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
@@ -269,7 +271,7 @@ class OlController {
                 console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
             }
 
-            const layer_polyline = create_polyline_layer(polylines, style)
+            const layer_polyline = create_polyline_layer(polylines, style, clickCB)
             this.#layers.set(layerName, layer_polyline)
             this.#map.addLayer(layer_polyline)
         }

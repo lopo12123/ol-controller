@@ -514,8 +514,12 @@ type STYLE_polyline = {
  * @description create a layer which contains series of polyline
  * @param polylines a collection of polyline-data
  * @param style optional style
+ * @param cb 点击回调
  */
-const create_polyline_layer = (polylines: OPTION_polyline[], style?: Partial<STYLE_polyline>) => {
+const create_polyline_layer = <PolylineData>(
+    polylines: OPTION_polyline<PolylineData>[],
+    style?: Partial<STYLE_polyline>,
+    cb?: (pos: [ number, number ], ext?: PolylineData) => void) => {
     if(style?.strokeType === 'dashed' && !style?.dashArray) {
         console.warn('[OlController] The "style.StrokeType" will not function as "style.dashArray" is in invalid format.')
     }
@@ -550,6 +554,9 @@ const create_polyline_layer = (polylines: OPTION_polyline[], style?: Partial<STY
             const start = new Feature({
                 type: 'start-marker',
                 geometry: new Point(polyline.path[0]),
+                _click_callback: (pos: [ number, number ]) => {
+                    cb?.(pos, polyline.ext)
+                }
             })
             start.setStyle(new Style({
                 image: new Icon({
