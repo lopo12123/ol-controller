@@ -1,4 +1,4 @@
-import { Map as OlMap } from "ol";
+import { Feature, Map as OlMap } from "ol";
 import type VectorLayer from "ol/layer/Vector";
 import type {
     OPTION_tile_map,
@@ -18,7 +18,7 @@ import {
 import { AnimationController } from "./animation";
 import { PopupAnchor, PopupController } from "./popup";
 import { Select } from "ol/interaction";
-import { getCenter } from "ol/extent";
+import { getTopRight } from "ol/extent";
 
 class OlController {
     // region render/re-render
@@ -60,7 +60,7 @@ class OlController {
         singleClick.on('select', (ev) => {
             const item = ev.target?.getFeatures()?.getArray()?.[0]
             if(!!item) {
-                const coordinate = getCenter(item.getGeometry().getExtent())
+                const coordinate = getTopRight(item.getGeometry().getExtent())
                 // 当元素被点击时自动触发其回调(如果存在)
                 item.getProperties()._click_callback?.(coordinate)
             }
@@ -132,6 +132,44 @@ class OlController {
 
     // endregion
 
+    // region search
+    /**
+     * @description 在目标图层的源数据中进行条件查询
+     * @param layerName 图层名
+     * @param condition 查询条件
+     */
+    public searchInLayer<ItemData = any>(layerName: string, condition: (self: { [k: string]: any, extData?: ItemData }) => boolean) {
+        const layer = this.#layers.get(layerName)
+
+        if(!!layer) {
+            const features: Feature[] = layer.getSource().getFeatures()
+            for (let i = 0; i < features.length; i++) {
+                const self: { [k: string]: any, extData?: ItemData } = features[i].getProperties().self
+                if(condition(self)) return self.extData ?? null
+            }
+        }
+
+        return null
+    }
+
+    // endregion
+
+    // region visible
+    /**
+     * @description switch hide/show of specific layer
+     * @param layerName 图层名
+     * @param to 指定显示或隐藏, 为空则切换
+     */
+    public toggle_visible(layerName: string, to?: boolean) {
+        const target_layer = this.#layers.get(layerName)
+
+        if(!!target_layer) {
+            target_layer.setVisible(to ?? !target_layer.getVisible())
+        }
+    }
+
+    // endregion
+
     // region layer-control(add/remove)
     /**
      * @description references of addition layers
@@ -142,6 +180,14 @@ class OlController {
      */
     get layers() {
         return [ ...this.#layers.keys() ]
+    }
+
+    /**
+     * @description 获取目标图层, 若有 api 最好不要调用此函数, 否则直接获取图层进行操作
+     * @param layerName
+     */
+    public getLayer(layerName: string) {
+        return this.#layers.get(layerName)
     }
 
     /**
@@ -274,19 +320,6 @@ class OlController {
             const layer_polyline = create_polyline_layer(polylines, style, clickCB)
             this.#layers.set(layerName, layer_polyline)
             this.#map.addLayer(layer_polyline)
-        }
-    }
-
-    /**
-     * @description switch hide/show of specific layer
-     * @param layerName 图层名
-     * @param to 指定显示或隐藏, 为空则切换
-     */
-    public toggle_visible(layerName: string, to?: boolean) {
-        const target_layer = this.#layers.get(layerName)
-
-        if(!!target_layer) {
-            target_layer.setVisible(to ?? !target_layer.getVisible())
         }
     }
 
