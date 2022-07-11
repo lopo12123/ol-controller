@@ -414,10 +414,12 @@ const create_polygon_layer__GeoJson = (
  * @description create a polygon by data from path array
  * @param polygons collection of polygons
  * @param style optional style
+ * @param cb 点击回调
  */
 const create_polygon_layer__PathArray = <Ext_AreaData = any>(
     polygons: OPTION_polygon<Ext_AreaData>[],
-    style?: Partial<STYLE_polygon>) => {
+    style?: Partial<STYLE_polygon>,
+    cb?: (pos: [ number, number ], ext?: Ext_AreaData) => void) => {
     if(style?.strokeType === 'dashed' && !style?.dashArray) {
         console.warn('[OlController] The "style.StrokeType" will not function as "style.dashArray" is in invalid format.')
     }
@@ -430,6 +432,9 @@ const create_polygon_layer__PathArray = <Ext_AreaData = any>(
             type: 'polygon',
             geometry: new Polygon([ polygon.path ]),
             self: polygon,
+            _click_callback: (pos: [ number, number ]) => {
+                cb?.(pos, polygon.ext)
+            }
         })
 
         let dash = [ 0, 0 ]

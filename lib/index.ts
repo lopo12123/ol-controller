@@ -214,18 +214,21 @@ class OlController {
      * @param layerName layer`s name
      * @param polygons collections of path of polygon
      * @param style optional style for polygon
+     * @param clickCB 点击回调
      */
-    public addPolygonLayer(layerName: string, polygons: OPTION_polygon[], style?: STYLE_polygon): void
+    public addPolygonLayer<PolygonData>(layerName: string, polygons: OPTION_polygon<PolygonData>[], style?: STYLE_polygon, clickCB?: (pos: [ number, number ], ext?: PolygonData) => void): void
     /**
      * @description add polygon layer by data in geoJson/pathArray
      * @param layerName layer`s name
      * @param polygons path/url to geoJson (`geoJson`); collections of path of polygon (`pathArray`)
      * @param style optional style for polygon
+     * @param clickCB 点击回调
      */
-    public addPolygonLayer(
+    public addPolygonLayer<PolygonData>(
         layerName: string,
-        polygons: string | OPTION_polygon[],
-        style?: Partial<STYLE_polygon>) {
+        polygons: string | OPTION_polygon<PolygonData>[],
+        style?: Partial<STYLE_polygon>,
+        clickCB?: (pos: [ number, number ], ext?: PolygonData) => void) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
         }
@@ -240,7 +243,7 @@ class OlController {
                 this.#map.addLayer(layer_json)
             }
             else {
-                const layer_path = create_polygon_layer__PathArray(polygons, style)
+                const layer_path = create_polygon_layer__PathArray(polygons, style, clickCB)
                 this.#layers.set(layerName, layer_path)
                 this.#map.addLayer(layer_path)
             }
