@@ -14,17 +14,15 @@ declare class OlController {
     /**
      * @description render a new map on the target dom
      * @param el container of map
-     * @param src url of map tile
      * @param initOptions default view config
      */
-    constructor(el: HTMLElement, src?: string, initOptions?: Partial<OPTION_tile_map>);
+    constructor(el: HTMLElement, initOptions?: OPTION_tile_map);
     /**
      * @description render a new map on the target dom
      * @param el container of map
-     * @param src url of map tile
      * @param initOptions default view config
      */
-    render(el: HTMLElement, src?: string, initOptions?: Partial<OPTION_tile_map>): void;
+    render(el: HTMLElement, initOptions?: OPTION_tile_map): void;
     /**
      * @description names of addition layers
      */

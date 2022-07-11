@@ -8,25 +8,49 @@ import VectorSource from "ol/source/Vector";
  */
 declare type OPTION_tile_map = {
     /**
+     * @description base layer(s)
+     */
+    base?: {
+        /**
+         * @description source of map
+         */
+        src: string;
+        /**
+         * @description if cross-origin
+         */
+        crossOrigin: string;
+        /**
+         * @description An array of numbers representing an extent: [minx, miny, maxx, maxy].
+         */
+        extent?: number[];
+    }[];
+    /**
+     * @description use raster
+     */
+    raster?: {
+        operationType: 'pixel' | 'image';
+        operation: (data: number[][] | ImageData[]) => number[] | ImageData;
+    };
+    /**
      * @description default center
      */
-    center: [number, number];
+    center?: [number, number];
     /**
      * @description projection (default to EPSG:4326)
      */
-    projection: string;
+    projection?: string;
     /**
      * @description default zoom level
      */
-    zoom: number;
+    zoom?: number;
     /**
      * @description min zoom level (>=2)
      */
-    minZoom: number;
+    minZoom?: number;
     /**
      * @description max zoom level (<=20)
      */
-    maxZoom: number;
+    maxZoom?: number;
 };
 /**
  * @description crate a ol::map instance
@@ -34,7 +58,7 @@ declare type OPTION_tile_map = {
  * @param src src of map tail
  * @param options custom options for ol::view
  */
-declare const create_tile_map__xyz: (el: HTMLElement | string, src?: string, options?: Partial<OPTION_tile_map>) => OlMap;
+declare const create_tile_map__xyz: (el: HTMLElement | string, options?: OPTION_tile_map) => OlMap;
 /**
  * @description point data in create-point-layer
  */
