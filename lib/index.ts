@@ -35,6 +35,12 @@ class OlController {
      * @description instance of the map
      */
     #map: OlMap | null = null
+    /**
+     * @description 获得地图实例, 若有相应 api 最好不要直接操作, 否则可以获取此实例进行操作
+     */
+    get map() {
+        return this.#map
+    }
 
     /**
      * @description whether the map has been rendered(true) of disposed(false)
@@ -69,6 +75,36 @@ class OlController {
         }
         this.#dom = el
         this.#map = create_tile_map__xyz(el, initOptions)
+    }
+
+    // endregion
+
+    // region zoom
+    /**
+     * @description zoom-in / zoom-out / zoom to specific level
+     * @param to
+     */
+    zoom(to: '-' | '+' | number) {
+        const view = this.#map?.getView()
+        const curr_level = view?.getZoom()
+
+        if(!view || !curr_level) return
+        else if(to === '-') {
+            view.setZoom(curr_level - 1)
+        }
+        else if(to === '+') {
+            view.setZoom(curr_level + 1)
+        }
+        else {
+            view.setZoom(to)
+        }
+    }
+
+    /**
+     * @description get current zoom level
+     */
+    getZoomLevel() {
+        return this.#map?.getView().getZoom() ?? null
     }
 
     // endregion
