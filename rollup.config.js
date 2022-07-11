@@ -14,17 +14,11 @@ export default defineConfig({
     ],
     output: [
         {
-            dir: 'dist/esm',
+            dir: 'dist',
             format: 'esm',
             sourcemap: 'inline',
             plugins: [terser()]
         },
-        // {
-        //     dir: 'dist/cjs',
-        //     format: 'cjs',
-        //     sourcemap: 'inline',
-        //     plugins: [terser()]
-        // },
     ],
     plugins: [typescript({tsconfig: './tsconfig.esm.json'})],
 })

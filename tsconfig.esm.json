@@ -16,7 +16,7 @@
         ],
         "skipLibCheck": true,
         "declaration": true,
-        "outDir": "dist/esm"
+        "outDir": "dist"
     },
     "include": [
         "lib"
