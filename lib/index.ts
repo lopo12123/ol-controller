@@ -138,14 +138,14 @@ class OlController {
      * @param layerName 图层名
      * @param condition 查询条件
      */
-    public searchInLayer<ItemData = any>(layerName: string, condition: (self: { [k: string]: any, extData?: ItemData }) => boolean) {
+    public searchInLayer<ItemData = any>(layerName: string, condition: (self: { [k: string]: any, ext?: ItemData }) => boolean) {
         const layer = this.#layers.get(layerName)
 
         if(!!layer) {
             const features: Feature[] = layer.getSource().getFeatures()
             for (let i = 0; i < features.length; i++) {
-                const self: { [k: string]: any, extData?: ItemData } = features[i].getProperties().self
-                if(condition(self)) return self.extData ?? null
+                const self: { [k: string]: any, ext?: ItemData } = features[i].getProperties().self
+                if(condition(self)) return self.ext ?? null
             }
         }
 
