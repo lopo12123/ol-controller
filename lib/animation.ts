@@ -185,7 +185,6 @@ class AnimationController {
     }
 
     // region 播放/停止
-
     /**
      * @description 动画回调需要绑定当前实例, 箭头函数特性使得此处需要显式绑定 this 以获取实例属性
      */
@@ -271,6 +270,14 @@ class AnimationController {
         if(reset_speed) {
             this.#speed = 1
         }
+    }
+
+    /**
+     * @description switch show/hide of animation layer
+     * @param to 指定显示或隐藏, 为空则切换
+     */
+    toggle_visible(to?: boolean) {
+        this.#layer.setVisible(to ?? !this.#layer.getVisible())
     }
 
     /**

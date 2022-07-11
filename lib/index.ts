@@ -214,6 +214,19 @@ class OlController {
     }
 
     /**
+     * @description switch hide/show of specific layer
+     * @param layerName 图层名
+     * @param to 指定显示或隐藏, 为空则切换
+     */
+    public toggle_visible(layerName: string, to?: boolean) {
+        const target_layer = this.#layers.get(layerName)
+
+        if(!!target_layer) {
+            target_layer.setVisible(to ?? !target_layer.getVisible())
+        }
+    }
+
+    /**
      * @description 移除附加图层
      * @param layerName (可选) 若为空则移除全部附加图层, 否则移除指定图层
      */
@@ -390,7 +403,7 @@ class OlController {
 
     // endregion
 
-    // region clean up / dispose
+    // region clean / dispose
     /**
      * @description 移除除底图外的全部内容
      */
