@@ -178,10 +178,12 @@ type OPTION_point<T = any> = {
  * @description create a layer which contains series of points
  * @param points a collection of point-data
  * @param icon path to the icon of point (shared by all points)
+ * @param cb 点击回调
  */
 const create_point_layer = <Ext_PointData = any>(
     points: OPTION_point<Ext_PointData>[],
-    icon: string) => {
+    icon: string,
+    cb?: (pos: [ number, number ], ext?: Ext_PointData) => void) => {
     const source = new VectorSource()
     const layer = new VectorLayer({ source })
 
@@ -189,7 +191,10 @@ const create_point_layer = <Ext_PointData = any>(
         const point_feature = new Feature({
             type: 'point',
             geometry: new Point(point.anchor),
-            self: point
+            self: point,
+            _click_callback: (pos: [ number, number ]) => {
+                cb?.(pos, point.ext)
+            }
         })
         point_feature.setStyle(new Style({
             image: new Icon({
