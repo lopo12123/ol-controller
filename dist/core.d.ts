@@ -18,7 +18,7 @@ declare type OPTION_tile_map = {
         /**
          * @description if cross-origin
          */
-        crossOrigin: string;
+        crossOrigin?: string;
         /**
          * @description An array of numbers representing an extent: [minx, miny, maxx, maxy].
          */
