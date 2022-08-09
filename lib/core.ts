@@ -179,13 +179,15 @@ type OPTION_point<T = any> = {
  * @param points a collection of point-data
  * @param icon path to the icon of point (shared by all points)
  * @param cb 点击回调
+ * @param z 层级
  */
 const create_point_layer = <Ext_PointData = any>(
     points: OPTION_point<Ext_PointData>[],
     icon: string,
-    cb?: (pos: [ number, number ], ext?: Ext_PointData) => void) => {
+    cb?: (pos: [ number, number ], ext?: Ext_PointData) => void,
+    z?: number) => {
     const source = new VectorSource()
-    const layer = new VectorLayer({ source })
+    const layer = new VectorLayer({ source, zIndex: z })
 
     points.forEach(point => {
         const point_feature = new Feature({
@@ -290,6 +292,7 @@ const clusterStyleGenerator = (num: number, originIcon: Icon, style?: Partial<ST
  * @param minDistance min-distance of points in cluster
  * @param clusterStyle style of cluster icon
  * @param cb 点击回调
+ * @param z 层级
  */
 const create_point_cluster_layer = <Ext_PointData = any>(
     points: OPTION_point<Ext_PointData>[],
@@ -297,7 +300,8 @@ const create_point_cluster_layer = <Ext_PointData = any>(
     distance: number,
     minDistance: number,
     clusterStyle?: Partial<STYLE_point_cluster>,
-    cb?: (pos: [ number, number ], ext?: Ext_PointData) => void) => {
+    cb?: (pos: [ number, number ], ext?: Ext_PointData) => void,
+    z?: number) => {
     const features = points.map(point => {
         return new Feature({
             type: 'point_cluster',
@@ -315,6 +319,7 @@ const create_point_cluster_layer = <Ext_PointData = any>(
 
     return new VectorLayer({
             source: cluster_source,
+            zIndex: z,
             style: (feature_group) => {
                 const size = feature_group.get('features').length
                 let style = styleCache[size]
@@ -379,6 +384,10 @@ type STYLE_polygon = {
      * @description background-color of the area
      */
     fill: string
+    /**
+     * @description z-Index
+     */
+    zIndex?: number
 }
 /**
  * @description create a polygon by data from GeoJson
@@ -406,7 +415,8 @@ const create_polygon_layer__GeoJson = (
             fill: new Fill({
                 color: style?.fill ?? UseDefault.fill
             })
-        })
+        }),
+        zIndex: style?.zIndex
     })
 }
 
@@ -425,7 +435,7 @@ const create_polygon_layer__PathArray = <Ext_AreaData = any>(
     }
 
     const source = new VectorSource()
-    const layer = new VectorLayer({ source })
+    const layer = new VectorLayer({ source, zIndex: style?.zIndex })
 
     polygons.forEach(polygon => {
         const polygon_feature = new Feature({
@@ -509,6 +519,10 @@ type STYLE_polyline = {
      * @description icon of end
      */
     endMarker?: string
+    /**
+     * @description z-Index
+     */
+    zIndex?: number
 }
 /**
  * @description create a layer which contains series of polyline
@@ -525,7 +539,7 @@ const create_polyline_layer = <PolylineData>(
     }
 
     const source = new VectorSource()
-    const layer = new VectorLayer({ source })
+    const layer = new VectorLayer({ source, zIndex: style?.zIndex })
 
     polylines.forEach(polyline => {
         const polyline_feature = new Feature({

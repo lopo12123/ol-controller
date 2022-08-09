@@ -196,12 +196,14 @@ class OlController {
      * @param points details of every point
      * @param icon path/url of icon to show
      * @param clickCB 点击回调
+     * @param z 层级
      */
     public addPointLayer<PointData>(
         layerName: string,
         points: OPTION_point<PointData>[],
         icon: string,
-        clickCB?: (pos: [ number, number ], ext?: PointData) => void) {
+        clickCB?: (pos: [ number, number ], ext?: PointData) => void,
+        z: number = 1) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
         }
@@ -210,7 +212,7 @@ class OlController {
                 console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
             }
 
-            const layer_point = create_point_layer(points, icon, clickCB)
+            const layer_point = create_point_layer(points, icon, clickCB, z)
             this.#layers.set(layerName, layer_point)
             this.#map.addLayer(layer_point)
         }
@@ -225,6 +227,7 @@ class OlController {
      * @param minDistance min-distance of points in cluster
      * @param clusterStyle style of icon in cluster
      * @param clickCB 点击回调
+     * @param z 层级
      */
     public addPointClusterLayer<ClusterPointData>(
         layerName: string,
@@ -233,7 +236,8 @@ class OlController {
         distance: number,
         minDistance: number,
         clusterStyle?: Partial<STYLE_point_cluster>,
-        clickCB?: (pos: [ number, number ], ext?: ClusterPointData) => void) {
+        clickCB?: (pos: [ number, number ], ext?: ClusterPointData) => void,
+        z: number = 1) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
         }
@@ -242,7 +246,7 @@ class OlController {
                 console.warn(`[OlController] A layer named "${ layerName }" already exists, the old layer will be replaced by the new layer. If that's what you're doing, ignore this warning.`)
             }
 
-            const layer_point_cluster = create_point_cluster_layer(points, icon, distance, minDistance, clusterStyle, clickCB)
+            const layer_point_cluster = create_point_cluster_layer(points, icon, distance, minDistance, clusterStyle, clickCB, z)
             this.#layers.set(layerName, layer_point_cluster)
             this.#map.addLayer(layer_point_cluster)
         }
@@ -269,12 +273,14 @@ class OlController {
      * @param polygons path/url to geoJson (`geoJson`); collections of path of polygon (`pathArray`)
      * @param style optional style for polygon
      * @param clickCB 点击回调
+     * @param z 层级
      */
     public addPolygonLayer<PolygonData>(
         layerName: string,
         polygons: string | OPTION_polygon<PolygonData>[],
         style?: Partial<STYLE_polygon>,
-        clickCB?: (pos: [ number, number ], ext?: PolygonData) => void) {
+        clickCB?: (pos: [ number, number ], ext?: PolygonData) => void,
+        z: number = 1) {
         if(!this.#map) {
             console.warn('[OlController] The map instance has already disposed.')
         }
