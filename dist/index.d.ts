@@ -73,8 +73,9 @@ declare class OlController {
      * @param points details of every point
      * @param icon path/url of icon to show
      * @param clickCB 点击回调
+     * @param z 层级
      */
-    addPointLayer<PointData>(layerName: string, points: OPTION_point<PointData>[], icon: string, clickCB?: (pos: [number, number], ext?: PointData) => void): void;
+    addPointLayer<PointData>(layerName: string, points: OPTION_point<PointData>[], icon: string, clickCB?: (pos: [number, number], ext?: PointData) => void, z?: number): void;
     /**
      * @description add point layer in cluster
      * @param layerName layer`s name
@@ -84,8 +85,9 @@ declare class OlController {
      * @param minDistance min-distance of points in cluster
      * @param clusterStyle style of icon in cluster
      * @param clickCB 点击回调
+     * @param z 层级
      */
-    addPointClusterLayer<ClusterPointData>(layerName: string, points: OPTION_point_cluster<ClusterPointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>, clickCB?: (pos: [number, number], ext?: ClusterPointData) => void): void;
+    addPointClusterLayer<ClusterPointData>(layerName: string, points: OPTION_point_cluster<ClusterPointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>, clickCB?: (pos: [number, number], ext?: ClusterPointData) => void, z?: number): void;
     /**
      * @description add polygon layer by data in geoJson
      * @param layerName layer`s name

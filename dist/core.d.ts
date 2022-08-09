@@ -82,8 +82,9 @@ declare type OPTION_point<T = any> = {
  * @param points a collection of point-data
  * @param icon path to the icon of point (shared by all points)
  * @param cb 点击回调
+ * @param z 层级
  */
-declare const create_point_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, cb?: ((pos: [number, number], ext?: Ext_PointData | undefined) => void) | undefined) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
+declare const create_point_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, cb?: ((pos: [number, number], ext?: Ext_PointData | undefined) => void) | undefined, z?: number) => VectorLayer<VectorSource<import("ol/geom/Geometry").default>>;
 /**
  * @description point data in create-point-layer
  */
@@ -134,8 +135,9 @@ declare type STYLE_point_cluster = {
  * @param minDistance min-distance of points in cluster
  * @param clusterStyle style of cluster icon
  * @param cb 点击回调
+ * @param z 层级
  */
-declare const create_point_cluster_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>, cb?: ((pos: [number, number], ext?: Ext_PointData | undefined) => void) | undefined) => VectorLayer<Cluster>;
+declare const create_point_cluster_layer: <Ext_PointData = any>(points: OPTION_point<Ext_PointData>[], icon: string, distance: number, minDistance: number, clusterStyle?: Partial<STYLE_point_cluster>, cb?: ((pos: [number, number], ext?: Ext_PointData | undefined) => void) | undefined, z?: number) => VectorLayer<Cluster>;
 /**
  * @description polygon data in create-polygon-layer (by path array)
  */
@@ -177,6 +179,10 @@ declare type STYLE_polygon = {
      * @description background-color of the area
      */
     fill: string;
+    /**
+     * @description z-Index
+     */
+    zIndex?: number;
 };
 /**
  * @description create a polygon by data from GeoJson
@@ -236,6 +242,10 @@ declare type STYLE_polyline = {
      * @description icon of end
      */
     endMarker?: string;
+    /**
+     * @description z-Index
+     */
+    zIndex?: number;
 };
 /**
  * @description create a layer which contains series of polyline
