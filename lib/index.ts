@@ -63,8 +63,9 @@ class OlController {
                 const coordinate = getTopRight(item.getGeometry().getExtent())
                 // 当元素被点击时自动触发其回调(如果存在)
                 // 是集群
-                if(!!item.features && item.features.length === 1) {
-                    item.features[0].getProperties()._click_callback?.(coordinate)
+                const _features = item.getProperties().features
+                if(!!_features && _features.length === 1) {
+                    _features[0].getProperties()._click_callback?.(coordinate)
                 }
                 // 是单点
                 else {
