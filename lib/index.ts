@@ -62,7 +62,14 @@ class OlController {
             if(!!item) {
                 const coordinate = getTopRight(item.getGeometry().getExtent())
                 // 当元素被点击时自动触发其回调(如果存在)
-                item.getProperties()._click_callback?.(coordinate)
+                // 是集群
+                if(!!item.features && item.features.length === 1) {
+                    item.features[0].getProperties()._click_callback?.(coordinate)
+                }
+                // 是单点
+                else {
+                    item.getProperties()._click_callback?.(coordinate)
+                }
             }
             // 取消默认的选中效果
             ev.target?.getFeatures()?.clear()

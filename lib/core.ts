@@ -318,27 +318,26 @@ const create_point_cluster_layer = <Ext_PointData = any>(
     const styleCache: { [k: number]: Style } = {}
 
     return new VectorLayer({
-            source: cluster_source,
-            zIndex: z,
-            style: (feature_group) => {
-                const size = feature_group.get('features').length
-                let style = styleCache[size]
+        source: cluster_source,
+        zIndex: z,
+        style: (feature_group) => {
+            const size = feature_group.get('features').length
+            let style = styleCache[size]
 
-                if(!style) {
-                    style = clusterStyleGenerator(size, new Icon({
-                        anchor: [ 0.5, 0.5 ],
-                        scale: 1,
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'fraction',
-                        src: icon,
-                    }), clusterStyle)
-                    styleCache[size] = style
-                }
-
-                return style
+            if(!style) {
+                style = clusterStyleGenerator(size, new Icon({
+                    anchor: [ 0.5, 0.5 ],
+                    scale: 1,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                    src: icon,
+                }), clusterStyle)
+                styleCache[size] = style
             }
+
+            return style
         }
-    )
+    })
 }
 // endregion
 
