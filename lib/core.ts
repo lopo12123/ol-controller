@@ -265,7 +265,7 @@ const clusterStyleGenerator = (num: number, originIcon: Icon, style?: Partial<ST
     const textToShow = typeof style?.text === 'function' ? style.text(num) : (style?.text ?? num.toString())
 
     return new Style({
-        image: style?.hideIcon === false
+        image: (num === 1 || style?.hideIcon === false)
             ? originIcon
             : new CircleStyle({
                 radius: style?.radius ?? 10,
